@@ -52,21 +52,17 @@ class TestPatchAttributes:
         configuration.verify_ssl = False
         configuration.username = login
         configuration.password = password
-        api_client_useradm = ApiClient(configuration)
-        user_token = api.UserAdministrationManagementAPIApi(api_client_useradm).login()
+        api_client_management = ApiClient(configuration)
+        user_token = api.UserAdministrationManagementAPIApi(api_client_management).login()
 
         tenant_token = ""
         devauthd = ApiClientOld(deviceauth.URL_DEVICES)
         devauthm = ApiClientOld(deviceauth.URL_MGMT)
         make_accepted_devices(devauthd, devauthm, user_token, tenant_token, 2)
 
-        configuration = Configuration.get_default()
         configuration.access_token = user_token
-        configuration.debug = True
-        configuration.verify_ssl = False
-        api_client_inventory_management = ApiClient(configuration=configuration)
         inventory_management = api.DeviceInventoryManagementAPIApi(
-            api_client_inventory_management
+            api_client_management
         )
         for _ in redo.retrier(attempts=3, sleeptime=1):
             devices = inventory_management.list_device_inventories(
