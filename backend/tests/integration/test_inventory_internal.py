@@ -48,12 +48,12 @@ class TestPatchAttributes:
 
         configuration = Configuration.get_default()
         host = configuration.host
-        configuration.debug = True
-        configuration.verify_ssl = False
         configuration.username = login
         configuration.password = password
         api_client_management = ApiClient(configuration)
-        user_token = api.UserAdministrationManagementAPIApi(api_client_management).login()
+        user_token = api.UserAdministrationManagementAPIApi(
+            api_client_management
+        ).login()
 
         tenant_token = ""
         devauthd = ApiClientOld(deviceauth.URL_DEVICES)
