@@ -25,24 +25,33 @@ func mainTest(t *testing.T, settings TestSettings) error {
 	}
 
 	basicAuth := b64.StdEncoding.EncodeToString([]byte(settings.Username + ":" + settings.Password))
-	l, err := c.LoginWithResponse(ctx, client.LoginJSONRequestBody{}, func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Authorization", "Basic "+basicAuth)
-		return nil
-	})
-	if err != nil {
-		return errors.Wrap(err, "failed LoginJSONRequestBody")
-	}
-
-	if l.HTTPResponse == nil {
-		return errors.Errorf("l.HTTPResponse is nil")
-	}
-
-	if l.HTTPResponse != nil && l.HTTPResponse.StatusCode != 200 {
-		return errors.Errorf("failed LoginJSONRequestBody: %d", l.HTTPResponse.StatusCode)
-	}
+	l, err := c.LoginWithResponse(
+		ctx,
+		client.LoginJSONRequestBody{},
+		func(ctx context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "Basic "+basicAuth)
+			return nil
+		},
+	)
+	assert.NoError(t, err)
+	assert.NotNil(t, l)
+	assert.NotNil(t, l.HTTPResponse)
+	assert.Equal(t, 200, l.HTTPResponse.StatusCode)
 
 	jwt := string(l.Body)
 	assert.True(t, len(jwt) > 0)
-	t.Logf("test passed with login response: jwt len=%d\n", len(jwt))
+
+	m, err := c.ShowOwnUserDataWithResponse(
+		ctx,
+		func(ctx context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "Bearer "+jwt)
+			return nil
+		},
+	)
+	assert.NoError(t, err)
+	assert.Equal(t, 200, m.HTTPResponse.StatusCode)
+	assert.Equal(t, settings.Username, m.JSON200.Email)
+
+	t.Logf("test passed with user data: %+v\n", m.JSON200)
 	return nil
 }
