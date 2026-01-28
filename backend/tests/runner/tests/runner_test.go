@@ -29,11 +29,16 @@ func TestIntegrationRun(t *testing.T) {
 	for name, test := range TestCases {
 		t.Logf("Running test %s\n", name)
 		t.Run(name, func(t *testing.T) {
-			assert.NoError(t, test(t, TestSettings{
-				ServerURL: ServerURL,
-				Username:  Username,
-				Password:  Password,
-			}))
+			assert.NoError(t,
+				test(
+					t,
+					TestSettings{
+						ServerURL: ServerURL,
+						Username:  Username,
+						Password:  Password,
+					},
+				),
+			)
 		})
 	}
 }
