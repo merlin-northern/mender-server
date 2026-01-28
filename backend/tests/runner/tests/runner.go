@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type MainTestFunc func() error
+type MainTestFunc func(context *cli.Context) error
 
 var TestCases = make(map[string]MainTestFunc)
 
@@ -23,6 +23,16 @@ func Main() {
 				Usage:  "Run the integration tests",
 				Action: IntegrationRun,
 				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "username",
+						Usage:   "user name to use in case of running against existing accounts",
+						EnvVars: []string{"MENDER_USERNAME"},
+					},
+					&cli.StringFlag{
+						Name:    "password",
+						Usage:   "password to use in case of running against existing accounts",
+						EnvVars: []string{"MENDER_PASSWORD"},
+					},
 					&cli.StringFlag{
 						Name:     "server-url",
 						Usage:    "full URL for the instance for testing, example: https://staging.hosted.mender.io",
@@ -45,7 +55,7 @@ func Main() {
 func IntegrationRun(context *cli.Context) error {
 	for name, test := range TestCases {
 		fmt.Printf("Running test %s\n", name)
-		err := test()
+		err := test(context)
 		if err != nil {
 			return err
 		}
