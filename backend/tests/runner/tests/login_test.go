@@ -13,10 +13,10 @@ import (
 )
 
 func init() {
-	AddTestCase("test_login", mainTest)
+	AddTestCase("test_login", mainTestLogin)
 }
 
-func mainTest(t *testing.T, settings TestSettings) error {
+func mainTestLogin(t *testing.T, settings TestSettings) error {
 	t.Logf("login test starting\n")
 	ctx := context.Background()
 	c, err := client.NewClientWithResponses(settings.ServerURL)

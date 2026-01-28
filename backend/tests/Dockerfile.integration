@@ -39,4 +39,15 @@ COPY requirements-integration.txt .
 RUN pip3 install --no-cache-dir -r requirements-integration.txt && \
   apt-get install --assume-yes libzbar0
 
-ENTRYPOINT ["python3", "-m", "pytest"]
+ENV GO_VERSION=1.24.0
+
+RUN curl -L "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" | tar -C /usr/local -xz
+ENV PATH="${PATH}:/usr/local/go/bin"
+ENV GOPATH=/go
+ENV PATH=$PATH:$GOPATH/bin
+RUN go version
+
+ENV TEST_USERNAME=test@mender.io
+ENV TEST_PASSWORD=vaBcOxLu2IEFKVWA
+
+ENTRYPOINT python3 -m pytest && docker exec mender-useradm-1 useradm create-user --username ${TEST_USERNAME} --password ${TEST_PASSWORD} && cd /tests/runner && go test -parallel 1 -count 1 -v github.com/mendersoftware/mender-server/tests/runner/tests -args -server-url=https://traefik -username=${TEST_USERNAME} -password=${TEST_PASSWORD}
