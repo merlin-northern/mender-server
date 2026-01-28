@@ -1,31 +1,30 @@
-package runner
+package tests
 
 import (
 	"context"
 	b64 "encoding/base64"
-	"fmt"
 	"net/http"
+	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/mendersoftware/mender-server/tests/runner/client"
-	"github.com/mendersoftware/mender-server/tests/runner/tests"
 )
 
 func init() {
-	tests.AddTestCase("test_tiers", mainTestTiers)
+	AddTestCase("test_login", mainTest)
 }
 
-func mainTestTiers(args *cli.Context) error {
-	fmt.Printf("test_tiers starting\n")
+func mainTest(t *testing.T, settings TestSettings) error {
+	t.Logf("login test starting\n")
 	ctx := context.Background()
-	c, err := client.NewClientWithResponses(args.String("server-url"))
+	c, err := client.NewClientWithResponses(settings.ServerURL)
 	if err != nil {
 		return errors.Wrap(err, "failed to create client")
 	}
 
-	basicAuth := b64.StdEncoding.EncodeToString([]byte(args.String("username") + ":" + args.String("password")))
+	basicAuth := b64.StdEncoding.EncodeToString([]byte(settings.Username + ":" + settings.Password))
 	l, err := c.LoginWithResponse(ctx, client.LoginJSONRequestBody{}, func(ctx context.Context, req *http.Request) error {
 		req.Header.Set("Authorization", "Basic "+basicAuth)
 		return nil
@@ -43,6 +42,7 @@ func mainTestTiers(args *cli.Context) error {
 	}
 
 	jwt := string(l.Body)
-	fmt.Printf("login response: jwt len=%d\n", len(jwt))
+	assert.True(t, len(jwt) > 0)
+	t.Logf("test passed with login response: jwt len=%d\n", len(jwt))
 	return nil
 }
