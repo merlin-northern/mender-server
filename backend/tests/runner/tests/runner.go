@@ -5,13 +5,18 @@ import (
 	"testing"
 )
 
+// TestSettings contains settings for running a test.
+// all the private fields are the ones that tests can fill
+// (thanks to getting a pointer to objects of this type)
+// for other tests to use.
 type TestSettings struct {
 	ServerURL string
 	Username  string
 	Password  string
+	jwt       string
 }
 
-type MainTestFunc func(t *testing.T, settings TestSettings) error
+type MainTestFunc func(t *testing.T, settings *TestSettings) error
 
 var TestCases = make(map[string]MainTestFunc)
 

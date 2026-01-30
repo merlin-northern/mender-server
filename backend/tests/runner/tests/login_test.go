@@ -16,7 +16,7 @@ func init() {
 	AddTestCase("test_login", mainTestLogin)
 }
 
-func mainTestLogin(t *testing.T, settings TestSettings) error {
+func mainTestLogin(t *testing.T, settings *TestSettings) error {
 	t.Logf("login test starting\n")
 	ctx := context.Background()
 	c, err := client.NewClientWithResponses(settings.ServerURL)
@@ -40,6 +40,7 @@ func mainTestLogin(t *testing.T, settings TestSettings) error {
 
 	jwt := string(l.Body)
 	assert.True(t, len(jwt) > 0)
+	settings.jwt = jwt
 
 	m, err := c.ShowOwnUserDataWithResponse(
 		ctx,
