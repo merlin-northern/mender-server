@@ -3,6 +3,8 @@ package tests
 import (
 	"strconv"
 	"testing"
+
+	"github.com/mendersoftware/mender-server/tests/runner/client"
 )
 
 // TestSettings contains settings for running a test.
@@ -14,6 +16,7 @@ type TestSettings struct {
 	Username  string
 	Password  string
 	jwt       string
+	client    *client.ClientWithResponses
 }
 
 type MainTestFunc func(t *testing.T, settings *TestSettings) error

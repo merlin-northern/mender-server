@@ -31,6 +31,7 @@ func mainTestLogin(t *testing.T, settings *TestSettings) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create client")
 	}
+	settings.client = c
 
 	basicAuth := b64.StdEncoding.EncodeToString([]byte(settings.Username + ":" + settings.Password))
 	l, err := c.LoginWithResponse(
