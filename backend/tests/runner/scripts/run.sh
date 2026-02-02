@@ -155,7 +155,7 @@ run_tests() {
 
 cleanup() {
     if [ -z $SKIP_CLEANUP ]; then
-        compose_cmd down -v --remove-orphans
+        compose_cmd down --remove-orphans
     else
         # Remove stopped container created by $docker_compose_cmd run
         compose_cmd rm -f
