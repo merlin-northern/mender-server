@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	AddTestCase("test_login", mainTestLogin)
+	AddTestCase("0_test_login", mainTestLogin)
 }
 
 func mainTestLogin(t *testing.T, settings *TestSettings) error {

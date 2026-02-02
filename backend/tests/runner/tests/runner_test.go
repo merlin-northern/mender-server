@@ -7,7 +7,9 @@ package tests
 
 import (
 	"flag"
+	"maps"
 	"os"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,7 +34,10 @@ func TestIntegrationRun(t *testing.T) {
 		Password:  Password,
 	}
 
-	for name, test := range TestCases {
+	keys := slices.Collect(maps.Keys(TestCases))
+	slices.Sort(keys)
+	for _, name := range keys {
+		test := TestCases[name]
 		t.Logf("Running test %s\n", name)
 		t.Run(name, func(t *testing.T) {
 			assert.NoError(t,
