@@ -153,57 +153,6 @@ run_tests() {
     return $?
 }
 
-copy_test_reports_if_args() {
-    while [ -n "$1" ]; do
-        case "$1" in
-            --junit-xml=*)
-                RESULTS_FILE="${1#--junit-xml=}"
-                ;;
-            --junit-xml)
-                shift
-                RESULTS_FILE="$1"
-                ;;
-            --html=*)
-                REPORT_FILE="${1#--html=}"
-                ;;
-            --html)
-                shift
-                REPORT_FILE="$1"
-                ;;
-        esac
-        shift
-    done
-
-    cid=$(compose_cmd ps -aq integration-tester | head -n 1)
-    if [ -n "$RESULTS_FILE" ]; then
-        echo "-- copying file $RESULTS_FILE"
-        docker cp ${cid}:/$RESULTS_FILE . || true
-    fi
-    if [ -n "$REPORT_FILE" ]; then
-        echo "-- copying file $REPORT_FILE"
-        docker cp ${cid}:/$REPORT_FILE . || true
-    fi
-}
-
-prepare_pytest_args() {
-    filter="none"
-    for val in $USER_PYTEST_ADDOPTS; do
-        if [ "$val" == "-k" ]; then
-            filter="next"
-        elif [ "$filter" == "next" ]; then
-            PYTEST_FILTER="$PYTEST_FILTER and $val"
-            filter="done"
-        else
-            PYTEST_ADDOPTS="$PYTEST_ADDOPTS $val"
-        fi
-    done
-
-    echo "-- using PYTEST_FILTER=$PYTEST_FILTER"
-    PYTEST_ADDOPTS="$PYTEST_ADDOPTS -k '$PYTEST_FILTER' $PYTEST_REPORT"
-
-    export PYTEST_ADDOPTS
-}
-
 cleanup() {
     if [ -z $SKIP_CLEANUP ]; then
         compose_cmd down -v --remove-orphans
@@ -271,7 +220,6 @@ for suite in "${TEST_SUITES[@]}"; do
         PYTEST_ADDOPTS="$PYTEST_ADDOPTS -m storage_test"
     fi
 
-    prepare_pytest_args
     run_tests
     run_tests_retcode=$?
     if [ $script_failed -eq 0 ]; then
@@ -283,8 +231,6 @@ for suite in "${TEST_SUITES[@]}"; do
         echo "-- tests failed, dumping logs to $tmppath"
         compose_cmd logs > "$tmppath" 2>&1
     fi
-
-    copy_test_reports_if_args $PYTEST_REPORT
 
     cleanup
 
