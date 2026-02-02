@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"crypto/tls"
 	b64 "encoding/base64"
 	"net/http"
 	"testing"
@@ -19,7 +20,12 @@ func init() {
 func mainTestLogin(t *testing.T, settings *TestSettings) error {
 	t.Logf("login test starting\n")
 	ctx := context.Background()
-	c, err := client.NewClientWithResponses(settings.ServerURL)
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	c, err := client.NewClientWithResponses(settings.ServerURL, client.WithHTTPClient(httpClient))
 	if err != nil {
 		return errors.Wrap(err, "failed to create client")
 	}
