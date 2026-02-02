@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"testing"
 
@@ -17,7 +18,14 @@ func init() {
 func mainTestRemove(t *testing.T, settings *TestSettings) error {
 	t.Logf("login test starting\n")
 	ctx := context.Background()
-	c, err := client.NewClientWithResponses(settings.ServerURL, client.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+	c, err := client.NewClientWithResponses(settings.ServerURL, client.WithHTTPClient(httpClient), client.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
 		req.Header.Set("Authorization", "Bearer "+settings.jwt)
 		return nil
 	}))
