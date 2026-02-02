@@ -133,6 +133,7 @@ get_runner_requirements() {
 run_tests() {
     local RUN_ARGS="--use-aliases"
     local state=""
+    local u
     # Need to start the backend first
     compose_cmd up $COMPOSE_UP_EXTRA_ARGS -d
     if [ -n "$AZURE_IOTHUB_CONNECTIONSTRING" ]; then
@@ -146,10 +147,14 @@ run_tests() {
       state=`docker inspect --format='{{.State.Status}}' backend-tests-useradm-1`
       sleep 1
     done
-    compose_cmd run $RUN_ARGS --use-aliases useradm create-user --username demo@mender.io --password demopassword1
+    loginpattern="test-user-%d@mender.io"
+    passwordpattern="test-user-password-%d"
+    for u in {1..2}; do
+     compose_cmd run $RUN_ARGS --use-aliases useradm create-user --username "${loginpattern//%d/${u}}" --password "${passwordpattern//%d/${u}}"
+    done
     compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester mod vendor
     compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester mod tidy
-    compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester test -v github.com/mendersoftware/mender-server/tests/runner/tests -args -server-url=https://traefik -username="demo@mender.io" -password="demopassword1"
+    compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester test -v github.com/mendersoftware/mender-server/tests/runner/tests -args -server-url=https://traefik -username-pattern="${loginpattern}" -password-pattern="${passwordpattern}"
     return $?
 }
 
