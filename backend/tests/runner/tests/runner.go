@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/mendersoftware/mender-server/tests/runner/client"
+	openapi "github.com/mendersoftware/mender-server/tests/runner/client"
 )
 
 // TestSettings contains settings for running a test.
@@ -18,7 +18,9 @@ type TestSettings struct {
 	//nolint:unused
 	jwt string
 	//nolint:unused
-	client *client.ClientWithResponses
+	client *openapi.APIClient
+	//nolint:unused
+	configuration *openapi.Configuration
 }
 
 type MainTestFunc func(t *testing.T, settings *TestSettings) error

@@ -6,13 +6,16 @@
 package tests
 
 import (
+	"crypto/tls"
 	"flag"
 	"maps"
+	"net/http"
 	"os"
 	"slices"
 	"strings"
 	"testing"
 
+	openapi "github.com/mendersoftware/mender-server/tests/runner/client"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,10 +42,22 @@ func TestIntegrationRun(t *testing.T) {
 		Username = strings.ReplaceAll(UsernamePattern, "%d", "1")
 		Password = strings.ReplaceAll(PasswordPattern, "%d", "1")
 	}
+	config := openapi.NewConfiguration()
+	config.Host = ServerURL
+	config.Scheme = "https"
+	config.HTTPClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
 	settings := &TestSettings{
-		ServerURL: ServerURL,
-		Username:  Username,
-		Password:  Password,
+		ServerURL:     ServerURL,
+		Username:      Username,
+		Password:      Password,
+		configuration: config,
+		client:        openapi.NewAPIClient(config),
 	}
 
 	keys := slices.Collect(maps.Keys(TestCases))

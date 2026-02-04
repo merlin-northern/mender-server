@@ -2,8 +2,6 @@ package tests
 
 import (
 	"context"
-	"crypto/tls"
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,33 +14,13 @@ func init() {
 }
 
 func mainTestSelf(t *testing.T, settings *TestSettings) error {
-	ctx := context.Background()
-	httpClient := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		},
-	}
-	c, err := client.NewClientWithResponses(
-		settings.ServerURL,
-		client.WithHTTPClient(httpClient),
-		client.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-			req.Header.Set("Authorization", "Bearer "+settings.jwt)
-			return nil
-		}),
-	)
-	assert.NoError(t, err)
-	assert.NotNil(t, c)
-
-	r, err := c.ShowOwnUserDataWithResponse(
-		ctx,
-	)
+	ctx := context.WithValue(context.Background(), openapi.ContextAccessToken, settings.jwt)
+	body, r, err := settings.client.UserAdministrationManagementAPIAPI.ShowOwnUserData(ctx).Execute()
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
-	assert.Equal(t, 200, r.HTTPResponse.StatusCode)
-	assert.Equal(t, settings.Username, r.JSON200.Email)
+	assert.Equal(t, 200, r.StatusCode)
+	assert.Equal(t, settings.Username, body.Email)
 
-	t.Logf("test passed with user data: %+v\n", r.JSON200)
+	t.Logf("test passed with user data: %+v\n", body)
 	return nil
 }
