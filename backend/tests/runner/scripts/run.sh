@@ -154,7 +154,7 @@ run_tests() {
     done
     compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester mod vendor
     compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester mod tidy
-    compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester test -v github.com/mendersoftware/mender-server/tests/runner/tests -args -server-url=https://traefik -username-pattern="${loginpattern}" -password-pattern="${passwordpattern}"
+    compose_cmd run $RUN_ARGS -w /backend/tests/runner --entrypoint=go --use-aliases integration-tester test -v github.com/mendersoftware/mender-server/tests/runner/tests -args -server-url=traefik -username-pattern="${loginpattern}" -password-pattern="${passwordpattern}"
     return $?
 }
 
