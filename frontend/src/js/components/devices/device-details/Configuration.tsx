@@ -148,9 +148,8 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
   const { canManageUsers } = useSelector(getUserCapabilities);
   const { config = {}, status } = device;
   const { configured = {}, deployment_id, reported = {}, reported_ts, updated_ts } = config;
-  console.log('6415: deployment:',deployment,' updated_ts:',updated_ts,' reported_ts:',reported_ts);
-
   const isRelevantDeployment = deployment.created > updated_ts && (!reported_ts || deployment.finished > reported_ts);
+  console.log('6415: starting: isRelevantDeployment:',isRelevantDeployment,' deployment_id:',deployment_id,' deployment:',deployment,' updated_ts:',updated_ts,' reported_ts:',reported_ts);
   const [changedConfig, setChangedConfig] = useState();
   const [editableConfig, setEditableConfig] = useState();
   const [isAborting, setIsAborting] = useState(false);
@@ -182,11 +181,11 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
   useEffect(() => {
     clearInterval(deploymentTimer.current);
     console.log('6415: get deployment enter: isRelevantDeployment:',isRelevantDeployment,' deployment_id:',deployment_id,' deployment:', deployment);
-    if (deployment_id && deployment.status !== DEPLOYMENT_STATES.finished) {
+    if (deployment_id && !Object.hasOwn(deployment, 'status') ) {
       //always etners here but deployment is empty
       console.log('6415: get deployment l 185: deployment_id:', deployment_id,' deployment:', deployment);
       deploymentTimer.current = setInterval(() => dispatch(getSingleDeployment(deployment_id)), TIMEOUTS.refreshDefault);
-    } else if (deployment_id && deployment.status === DEPLOYMENT_STATES.finished) {
+    } else if (deployment_id) {
     // } else if (deployment_id && deployment.status === DEPLOYMENT_STATES.finished) { // if (deployment_id && !isRelevantDeployment) {
       // const isRelevantDeployment = deployment.created > updated_ts && (!reported_ts || deployment.finished > reported_ts);
       // never enters here to get the deployment
