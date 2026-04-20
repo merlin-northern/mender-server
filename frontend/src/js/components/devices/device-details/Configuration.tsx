@@ -190,6 +190,7 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
   }, [deployment.status, deployment_id, dispatch, isRelevantDeployment]);
 
   useEffect(() => {
+    console.log('men_6415: deployment:',deployment);
     if (deployment.status === DEPLOYMENT_STATES.finished) {
       // we have to rely on the device stats here as the state change might not have propagated to the deployment status
       // leaving all stats at 0 and giving a false impression of deployment success
@@ -211,6 +212,7 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
   }, [JSON.stringify(configured), JSON.stringify(deployment.stats), deployment.created, deployment.status, deployment.finished, isRelevantDeployment]);
 
   useEffect(() => {
+    console.log('men_6415: isRelevantDeployment:',isRelevantDeployment,' deployment:',deployment,' deployment_id',deployment_id);
     if (!isRelevantDeployment) {
       return;
     }
