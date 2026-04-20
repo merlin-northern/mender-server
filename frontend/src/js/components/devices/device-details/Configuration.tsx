@@ -181,10 +181,13 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
 
   useEffect(() => {
     clearInterval(deploymentTimer.current);
+    console.log('6415: get deployment enter: deployment_id:',deployment.id,' deployment:', deployment);
     if (deployment_id && deployment.status !== DEPLOYMENT_STATES.finished) {
+      console.log('6415: get deployment l 185: deployment_id:', deployment_id,' deployment:', deployment);
       deploymentTimer.current = setInterval(() => dispatch(getSingleDeployment(deployment_id)), TIMEOUTS.refreshDefault);
-    } else if (deployment_id && !isRelevantDeployment) {
+    } else if (deployment_id && deployment.status === DEPLOYMENT_STATES.finished) {
     // } else if (deployment_id && deployment.status === DEPLOYMENT_STATES.finished) { // if (deployment_id && !isRelevantDeployment) {
+      console.log('6415: get deployment l 188: deployment_id:', deployment_id,' deployment:', deployment);
       dispatch(getSingleDeployment(deployment_id));
     }
     return () => {
