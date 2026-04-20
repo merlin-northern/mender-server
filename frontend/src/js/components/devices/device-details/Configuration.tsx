@@ -148,6 +148,8 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
   const { canManageUsers } = useSelector(getUserCapabilities);
   const { config = {}, status } = device;
   const { configured = {}, deployment_id, reported = {}, reported_ts, updated_ts } = config;
+  console.log('6415: deployment:',deployment,' updated_ts:',updated_ts,' reported_ts:',reported_ts);
+
   const isRelevantDeployment = deployment.created > updated_ts && (!reported_ts || deployment.finished > reported_ts);
   const [changedConfig, setChangedConfig] = useState();
   const [editableConfig, setEditableConfig] = useState();
@@ -182,6 +184,7 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
     if (deployment_id && deployment.status !== DEPLOYMENT_STATES.finished) {
       deploymentTimer.current = setInterval(() => dispatch(getSingleDeployment(deployment_id)), TIMEOUTS.refreshDefault);
     } else if (deployment_id && !isRelevantDeployment) {
+    // } else if (deployment_id && deployment.status === DEPLOYMENT_STATES.finished) { // if (deployment_id && !isRelevantDeployment) {
       dispatch(getSingleDeployment(deployment_id));
     }
     return () => {
