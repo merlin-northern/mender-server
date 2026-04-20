@@ -161,7 +161,6 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
   const [updateFailed, setUpdateFailed] = useState();
   const [updateLog, setUpdateLog] = useState();
   const dispatch = useDispatch();
-  const deploymentTimer = useRef();
 
   useEffect(() => {
     if (!isEmpty(config) && !isEmpty(changedConfig) && !isEditingConfig) {
@@ -179,22 +178,13 @@ export const DeviceConfiguration = ({ defaultConfig = {}, device: { id: deviceId
   }, [JSON.stringify(deployment.devices), device.id]);
 
   useEffect(() => {
-    clearInterval(deploymentTimer.current);
     console.log('6415: get deployment enter: isRelevantDeployment:',isRelevantDeployment,' deployment_id:',deployment_id,' deployment:', deployment);
-    if (deployment_id && !Object.hasOwn(deployment, 'status') ) {
-      //always etners here but deployment is empty
-      console.log('6415: get deployment l 185: deployment_id:', deployment_id,' deployment:', deployment);
-      deploymentTimer.current = setInterval(() => dispatch(getSingleDeployment(deployment_id)), TIMEOUTS.refreshDefault);
-    } else if (deployment_id) {
-    // } else if (deployment_id && deployment.status === DEPLOYMENT_STATES.finished) { // if (deployment_id && !isRelevantDeployment) {
+    if (deployment_id ){    // } else if (deployment_id && deployment.status === DEPLOYMENT_STATES.finished) { // if (deployment_id && !isRelevantDeployment) {
       // const isRelevantDeployment = deployment.created > updated_ts && (!reported_ts || deployment.finished > reported_ts);
       // never enters here to get the deployment
       console.log('6415: get deployment l 188: deployment_id:', deployment_id,' deployment:', deployment);
       dispatch(getSingleDeployment(deployment_id));
     }
-    return () => {
-      clearInterval(deploymentTimer.current);
-    };
   }, [deployment.status, deployment_id, dispatch, isRelevantDeployment]);
 
   useEffect(() => {
